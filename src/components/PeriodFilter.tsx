@@ -1,14 +1,26 @@
+type Period = 'Day' | 'Week' | 'Month' | 'Year'
+
 type Props = {
-  activePeriod: 'Day' | 'Week' | 'Month' | 'Year'
+  activePeriod: Period
+  onPeriodChange: (period: Period) => void
 }
 
-function PeriodFilter({ activePeriod }: Props) {
+function PeriodFilter({ activePeriod, onPeriodChange }: Props) {
   return (
-    <div>
-      <button className={activePeriod === 'Day' ? 'active' : ''}>Day</button>
-      <button className={activePeriod === 'Week' ? 'active' : ''}>Week</button>
-      <button className={activePeriod === 'Month' ? 'active' : ''}>Month</button>
-      <button className={activePeriod === 'Year' ? 'active' : ''}>Year</button>
+    <div className="flex gap-2 mb-6 mt-4 justify-center">
+      {(['Day', 'Week', 'Month', 'Year'] as Period[]).map(period => (
+        <button
+          key={period}
+          onClick={() => onPeriodChange(period)}
+          className={`px-4 py-1 text-sm font-medium rounded-lg border transition-colors ${
+            activePeriod === period
+              ? 'bg-stone-900 text-white border-stone-900'
+              : 'bg-white text-stone-700 border-stone-200 hover:border-stone-900'
+          }`}
+        >
+          {period}
+        </button>
+      ))}
     </div>
   )
 }
