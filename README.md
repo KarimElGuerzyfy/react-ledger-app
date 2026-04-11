@@ -22,13 +22,14 @@ _Coming soon — design in progress_
 
 **At launch:**
 - Email and password authentication via Supabase
-- Multi-user — every user's data is fully isolated
+- Multi-user — every user's data is fully isolated via Row Level Security
 - Add and delete expenses with description, amount, and category
-- Daily spending limit with warning
+- Daily spending limit with warning (approaching and exceeded states)
 - Period filter on Dashboard (Day / Week / Month / Year) — switches the total display instantly
 - History page with expandable sections for all closed days, weeks, months, and years
-- Currency setting (MAD, EUR, USD, GBP, AED)
+- Currency setting (MAD, EUR, USD, GBP, AED) — applies across the entire app
 - Automatic period closing at exactly 00:00 via Supabase cron Edge Functions
+- Automatic logout after 2 hours of inactivity
 - Onboarding screen on first login
 - Embedded tutorial video on the login page
 - Fully responsive
@@ -80,6 +81,16 @@ The app uses two layouts:
 
 Implemented using React Router's nested routes and the `<Outlet />` pattern. The layout renders once and page content is injected into the outlet slot. The navbar never remounts between navigations — it stays fixed while only the content below it changes.
 
+### Auth Context and Profile in Global State
+
+Authentication state and user profile settings (currency, daily limit) are stored in a React Context that wraps the entire app. This means any component can access the current user and their settings without prop drilling. The context listens to Supabase's `onAuthStateChange` — any login or logout anywhere in the app instantly updates the global state.
+
+When the user updates their currency or daily limit in the Profile page, `refreshProfile()` is called on the context, which re-fetches the profile from Supabase and updates the global state. This means the Dashboard immediately reflects the new currency and limit without requiring a page refresh.
+
+### Inactivity Logout
+
+Supabase's inactivity timeout is a Pro plan feature. Rather than upgrading, inactivity logout was implemented in code using a custom `useInactivityLogout` hook. The hook listens for user activity events (mouse movement, clicks, keystrokes, scrolling, touch) and resets a timer on each event. If 2 hours pass with no activity, the user is automatically signed out and redirected to the login page. The hook is called once in `AppLayout` so it applies to all protected pages without repeating the logic.
+
 ### Component vs Page Separation
 
 Pages are route-level components — they map to a URL and are rendered by React Router. Components are reusable pieces that pages are composed from. If it has a route, it is a page. If it gets used inside something else, it is a component.
@@ -91,6 +102,10 @@ The Dashboard shows the current active period only. A row of filter buttons (Day
 ### Spending Limit
 
 At launch, users can set a daily spending limit. The reasoning: this is a daily engagement app. The daily limit is actionable in the moment. The monthly picture is retrospective — a monthly spending limit is planned as a post-launch update once users have had time to engage with the daily flow first.
+
+### Row Level Security
+
+All six database tables have RLS enabled with explicit policies. Users can only read, insert, update, or delete their own rows — enforced at the database level, not just application logic. Even if someone bypassed the frontend entirely and called the Supabase API directly, they would only ever be able to access their own data.
 
 ---
 
@@ -156,8 +171,8 @@ type User = {
 ```
 src/
 ├── components/       # Reusable UI components
-├── context/          # React context (auth state, etc.)
-├── hooks/            # Custom hooks
+├── context/          # Auth context and profile state
+├── hooks/            # Custom hooks (useAuth, useInactivityLogout)
 ├── layouts/          # AuthLayout and AppLayout
 ├── lib/              # Supabase client setup
 ├── pages/            # Route-level page components

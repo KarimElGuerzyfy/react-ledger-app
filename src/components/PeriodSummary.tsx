@@ -3,9 +3,10 @@ type Period = 'Day' | 'Week' | 'Month' | 'Year'
 type Props = {
   total: number
   period: Period
+  currency: string
 }
 
-function PeriodSummary({ total, period }: Props) {
+function PeriodSummary({ total, period, currency }: Props) {
   const now = new Date()
 
   const getLabel = () => {
@@ -34,7 +35,7 @@ function PeriodSummary({ total, period }: Props) {
     <div className="flex flex-col items-center bg-white border border-stone-200 rounded-lg p-6 mb-6">
       <p className="text-sm text-stone-600 mb-1">{getLabel()}</p>
       <p className="text-3xl font-semibold text-stone-900">
-        {total.toFixed(2)} <span className="text-lg">MAD</span>
+        {total.toFixed(2)} <span className="text-lg">{currency}</span>
       </p>
     </div>
   )

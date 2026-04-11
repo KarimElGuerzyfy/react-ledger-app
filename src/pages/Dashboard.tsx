@@ -1,43 +1,103 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import PeriodFilter from '../components/PeriodFilter'
 import PeriodSummary from '../components/PeriodSummary'
 import ExpenseForm from '../components/ExpenseForm'
 import ExpenseList from '../components/ExpenseList'
 import SpendingWarning from '../components/SpendingWarning'
+import { supabase } from '../lib/supabase'
+import { useAuth } from '../hooks/useAuth'
 import type { Expense } from '../types'
 
 type Period = 'Day' | 'Week' | 'Month' | 'Year'
 
-const DAILY_LIMIT = 300.00
-
-const initialExpenses: Expense[] = [
-  { id: '1', description: 'Coffee', amount: 25.00, category: 'Food', createdAt: '2026-04-07T08:00:00.000Z' },
-  { id: '2', description: 'Taxi', amount: 40.00, category: 'Transport', createdAt: '2026-04-07T09:00:00.000Z' },
-  { id: '3', description: 'Netflix', amount: 120.00, category: 'Entertainment', createdAt: '2026-04-07T10:00:00.000Z' },
-]
-
 const fakeTotals: Record<Period, number> = {
-  Day: 185.00,
+  Day: 0,
   Week: 1200.00,
   Month: 4200.00,
   Year: 42000.00,
 }
 
 function Dashboard() {
-  const [expenses, setExpenses] = useState<Expense[]>(initialExpenses)
+  const { user, profile } = useAuth()
+  const DAILY_LIMIT = profile?.daily_limit ?? 300
+  const CURRENCY = profile?.currency ?? 'MAD'
+
+  const [expenses, setExpenses] = useState<Expense[]>([])
   const [activePeriod, setActivePeriod] = useState<Period>('Day')
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!user) return
+
+    async function fetchTodayExpenses() {
+      const today = new Date().toISOString().split('T')[0]
+
+      const { data, error } = await supabase
+        .from('expenses')
+        .select('*')
+        .eq('user_id', user!.id)
+        .gte('created_at', `${today}T00:00:00`)
+        .lte('created_at', `${today}T23:59:59`)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Error fetching expenses:', error)
+        return
+      }
+
+      setExpenses(data)
+      setLoading(false)
+    }
+
+    fetchTodayExpenses()
+  }, [user])
+
+  async function handleAdd(expense: Expense) {
+    const { data, error } = await supabase
+      .from('expenses')
+      .insert({
+        user_id: user!.id,
+        description: expense.description,
+        amount: expense.amount,
+        category: expense.category,
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error adding expense:', error)
+      return
+    }
+
+    setExpenses([data, ...expenses])
+  }
+
+  async function handleDelete(id: string) {
+    const { error } = await supabase
+      .from('expenses')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error deleting expense:', error)
+      return
+    }
+
+    setExpenses(expenses.filter(e => e.id !== id))
+  }
 
   const dayTotal = expenses.reduce((sum, e) => sum + e.amount, 0)
-
   const displayTotal = activePeriod === 'Day' ? dayTotal : fakeTotals[activePeriod]
 
+  if (loading) return <div className="min-h-screen bg-stone-50" />
+
   return (
-    <div className="max-w-7xl mx-auto px-8 py-8">
+    <div>
       <PeriodFilter activePeriod={activePeriod} onPeriodChange={setActivePeriod} />
-      <PeriodSummary total={displayTotal} period={activePeriod} />
-      <SpendingWarning total={dayTotal} limit={DAILY_LIMIT} />
-      <ExpenseForm onAdd={(expense) => setExpenses([...expenses, expense])} />
-      <ExpenseList expenses={expenses} onDelete={(id) => setExpenses(expenses.filter(e => e.id !== id))} />
+      <PeriodSummary total={displayTotal} period={activePeriod} currency={CURRENCY} />
+      <SpendingWarning total={dayTotal} limit={DAILY_LIMIT} currency={CURRENCY} />
+      <ExpenseForm onAdd={handleAdd} />
+      <ExpenseList expenses={expenses} onDelete={handleDelete} currency={CURRENCY} />
     </div>
   )
 }
