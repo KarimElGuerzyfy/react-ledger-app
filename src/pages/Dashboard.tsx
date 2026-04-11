@@ -3,9 +3,12 @@ import PeriodFilter from '../components/PeriodFilter'
 import PeriodSummary from '../components/PeriodSummary'
 import ExpenseForm from '../components/ExpenseForm'
 import ExpenseList from '../components/ExpenseList'
+import SpendingWarning from '../components/SpendingWarning'
 import type { Expense } from '../types'
 
 type Period = 'Day' | 'Week' | 'Month' | 'Year'
+
+const DAILY_LIMIT = 300.00
 
 const initialExpenses: Expense[] = [
   { id: '1', description: 'Coffee', amount: 25.00, category: 'Food', createdAt: '2026-04-07T08:00:00.000Z' },
@@ -32,6 +35,7 @@ function Dashboard() {
     <div className="max-w-7xl mx-auto px-8 py-8">
       <PeriodFilter activePeriod={activePeriod} onPeriodChange={setActivePeriod} />
       <PeriodSummary total={displayTotal} period={activePeriod} />
+      <SpendingWarning total={dayTotal} limit={DAILY_LIMIT} />
       <ExpenseForm onAdd={(expense) => setExpenses([...expenses, expense])} />
       <ExpenseList expenses={expenses} onDelete={(id) => setExpenses(expenses.filter(e => e.id !== id))} />
     </div>
