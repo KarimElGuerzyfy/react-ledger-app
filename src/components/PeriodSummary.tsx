@@ -6,36 +6,15 @@ type Props = {
   currency: string
 }
 
-function PeriodSummary({ total, period, currency }: Props) {
-  const now = new Date()
-
-  const getLabel = () => {
-    switch (period) {
-      case 'Day':
-        return now.toLocaleDateString('en-US', {
-          weekday: 'long',
-          month: 'long',
-          day: 'numeric',
-          year: 'numeric',
-        })
-      case 'Week': {
-        const startOfYear = new Date(now.getFullYear(), 0, 1)
-        const days = Math.floor((now.getTime() - startOfYear.getTime()) / 86400000)
-        const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7)
-        return `Week ${weekNumber}`
-      }
-      case 'Month':
-        return now.toLocaleDateString('en-US', { month: 'long' })
-      case 'Year':
-        return now.getFullYear().toString()
-    }
-  }
-
+function PeriodSummary({ total, currency }: Props) {
   return (
-    <div className="flex flex-col items-center bg-white border border-stone-200 rounded-lg p-6 mb-6">
-      <p className="text-sm text-stone-600 mb-1">{getLabel()}</p>
-      <p className="text-3xl font-semibold text-stone-900">
-        {total.toFixed(2)} <span className="text-lg">{currency}</span>
+    <div className="flex flex-col items-center mb-6 py-4">
+      <p className="text-xs uppercase tracking-[0.15em] mb-2 text-white">
+        Current Spending
+      </p>
+      <p className="text-5xl font-normal tracking-[-0.01em] text-white font-['Source_Sans_3'] tabular-nums">
+        <span className="font-['IBM_Plex_Mono']">{total.toFixed(2)}</span>{' '}
+        <span className="text-2xl text-white">{currency}</span>
       </p>
     </div>
   )

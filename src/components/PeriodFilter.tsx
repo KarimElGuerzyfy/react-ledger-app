@@ -7,16 +7,16 @@ type Props = {
 
 function PeriodFilter({ activePeriod, onPeriodChange }: Props) {
   return (
-    <div className="flex gap-2 mb-6 mt-4 justify-center">
-      {(['Day', 'Week', 'Month', 'Year'] as Period[]).map(period => (
+    <div className="grid grid-cols-4 rounded-xl mb-6 p-1 bg-[#0F0E0D]">
+      {(['Day', 'Week', 'Month', 'Year'] as Period[]).map((period) => (
         <button
           key={period}
           onClick={() => onPeriodChange(period)}
-          className={`px-4 py-1 text-sm font-medium rounded-lg border transition-colors ${
-            activePeriod === period
-              ? 'bg-stone-900 text-white border-stone-900'
-              : 'bg-white text-stone-700 border-stone-200 hover:border-stone-900'
-          }`}
+          className={`py-1.5 text-sm font-medium tracking-[0.08em] uppercase transition-colors duration-200 rounded-lg
+            ${activePeriod === period
+              ? 'bg-[#2e2e2e] text-white'
+              : 'bg-transparent text-[#666666]'
+            }`}
         >
           {period}
         </button>

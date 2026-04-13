@@ -28,10 +28,8 @@ function Dashboard() {
 
   useEffect(() => {
     if (!user) return
-
     async function fetchTodayExpenses() {
       const today = new Date().toISOString().split('T')[0]
-
       const { data, error } = await supabase
         .from('expenses')
         .select('*')
@@ -39,16 +37,10 @@ function Dashboard() {
         .gte('created_at', `${today}T00:00:00`)
         .lte('created_at', `${today}T23:59:59`)
         .order('created_at', { ascending: false })
-
-      if (error) {
-        console.error('Error fetching expenses:', error)
-        return
-      }
-
+      if (error) { console.error(error); return }
       setExpenses(data)
       setLoading(false)
     }
-
     fetchTodayExpenses()
   }, [user])
 
@@ -63,41 +55,30 @@ function Dashboard() {
       })
       .select()
       .single()
-
-    if (error) {
-      console.error('Error adding expense:', error)
-      return
-    }
-
+    if (error) { console.error(error); return }
     setExpenses([data, ...expenses])
   }
 
   async function handleDelete(id: string) {
-    const { error } = await supabase
-      .from('expenses')
-      .delete()
-      .eq('id', id)
-
-    if (error) {
-      console.error('Error deleting expense:', error)
-      return
-    }
-
+    const { error } = await supabase.from('expenses').delete().eq('id', id)
+    if (error) { console.error(error); return }
     setExpenses(expenses.filter(e => e.id !== id))
   }
 
   const dayTotal = expenses.reduce((sum, e) => sum + e.amount, 0)
   const displayTotal = activePeriod === 'Day' ? dayTotal : fakeTotals[activePeriod]
 
-  if (loading) return <div className="min-h-screen bg-stone-50" />
+  if (loading) return <div className="min-h-screen" />
 
   return (
-    <div>
-      <PeriodFilter activePeriod={activePeriod} onPeriodChange={setActivePeriod} />
-      <PeriodSummary total={displayTotal} period={activePeriod} currency={CURRENCY} />
-      <SpendingWarning total={dayTotal} limit={DAILY_LIMIT} currency={CURRENCY} />
-      <ExpenseForm onAdd={handleAdd} />
-      <ExpenseList expenses={expenses} onDelete={handleDelete} currency={CURRENCY} />
+    <div className="min-h-screen px-4 py-6 md:px-8 lg:px-10">
+      <div className="w-full max-w-3xl mx-auto lg:max-w-6xl">
+        <PeriodFilter activePeriod={activePeriod} onPeriodChange={setActivePeriod} />
+        <PeriodSummary total={displayTotal} period={activePeriod} currency={CURRENCY} />
+        <SpendingWarning total={dayTotal} limit={DAILY_LIMIT} currency={CURRENCY} />
+        <ExpenseForm onAdd={handleAdd} />
+        <ExpenseList expenses={expenses} onDelete={handleDelete} currency={CURRENCY} />
+      </div>
     </div>
   )
 }

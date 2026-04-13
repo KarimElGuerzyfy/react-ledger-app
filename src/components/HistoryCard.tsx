@@ -8,10 +8,10 @@ function HistoryCard({ label, subtitle, total }: Props) {
   return (
     <div>
       <div>
-        <p>{label}</p>
-        <p>{subtitle}</p>
+        <p><span className="font-['IBM_Plex_Mono']">{label}</span></p>
+        <p><span className="font-['IBM_Plex_Mono']">{subtitle}</span></p>
       </div>
-      <p>{total.toFixed(2)} MAD</p>
+      <p><span className="font-['IBM_Plex_Mono']">{total.toFixed(2)}</span> MAD</p>
     </div>
   )
 }
