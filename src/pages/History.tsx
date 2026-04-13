@@ -1,92 +1,126 @@
+import { useEffect, useState } from 'react'
 import HistorySection from '../components/HistorySection'
-import type { Day, Week, Month, Year } from '../types'
+import { supabase } from '../lib/supabase'
+import { useAuth } from '../hooks/useAuth'
 
-const fakeDays: Day[] = [
-  { id: '1', date: '2026-04-06', totalSpent: 210.00, expenses: [], isClosed: true },
-  { id: '2', date: '2026-04-05', totalSpent: 95.00, expenses: [], isClosed: true },
-  { id: '3', date: '2026-04-04', totalSpent: 340.00, expenses: [], isClosed: true },
-  { id: '4', date: '2026-04-03', totalSpent: 180.00, expenses: [], isClosed: true },
-  { id: '5', date: '2026-04-02', totalSpent: 260.00, expenses: [], isClosed: true },
-  { id: '6', date: '2026-04-01', totalSpent: 120.00, expenses: [], isClosed: true },
-  { id: '7', date: '2026-03-31', totalSpent: 450.00, expenses: [], isClosed: true },
-  { id: '8', date: '2026-03-30', totalSpent: 310.00, expenses: [], isClosed: true },
-]
+type DayRow = { id: string; date: string; total_spent: number }
+type WeekRow = { id: string; week_number: number; year: number; total_spent: number }
+type MonthRow = { id: string; month_number: number; year: number; total_spent: number }
+type YearRow = { id: string; year: number; total_spent: number }
 
-const fakeWeeks: Week[] = [
-  { id: '1', weekNumber: 14, year: 2026, totalSpent: 1200.00, days: [], isClosed: true },
-  { id: '2', weekNumber: 13, year: 2026, totalSpent: 980.00, days: [], isClosed: true },
-  { id: '3', weekNumber: 12, year: 2026, totalSpent: 1450.00, days: [], isClosed: true },
-  { id: '4', weekNumber: 11, year: 2026, totalSpent: 870.00, days: [], isClosed: true },
-  { id: '5', weekNumber: 10, year: 2026, totalSpent: 1100.00, days: [], isClosed: true },
-  { id: '6', weekNumber: 9, year: 2026, totalSpent: 990.00, days: [], isClosed: true },
-  { id: '7', weekNumber: 8, year: 2026, totalSpent: 1320.00, days: [], isClosed: true },
-  { id: '8', weekNumber: 7, year: 2026, totalSpent: 760.00, days: [], isClosed: true },
-]
-
-const fakeMonths: Month[] = [
-  { id: '1', monthNumber: 3, year: 2026, totalSpent: 4200.00, days: [], isClosed: true },
-  { id: '2', monthNumber: 2, year: 2026, totalSpent: 3800.00, days: [], isClosed: true },
-  { id: '3', monthNumber: 1, year: 2026, totalSpent: 4100.00, days: [], isClosed: true },
-  { id: '4', monthNumber: 12, year: 2025, totalSpent: 5200.00, days: [], isClosed: true },
-  { id: '5', monthNumber: 11, year: 2025, totalSpent: 3900.00, days: [], isClosed: true },
-  { id: '6', monthNumber: 10, year: 2025, totalSpent: 4400.00, days: [], isClosed: true },
-  { id: '7', monthNumber: 9, year: 2025, totalSpent: 3600.00, days: [], isClosed: true },
-  { id: '8', monthNumber: 8, year: 2025, totalSpent: 4800.00, days: [], isClosed: true },
-]
-
-const fakeYears: Year[] = [
-  { id: '1', year: 2025, totalSpent: 42000.00, isClosed: true },
-  { id: '2', year: 2024, totalSpent: 38000.00, isClosed: true },
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
 ]
 
 function History() {
+  const { user, profile } = useAuth()
+  const CURRENCY = profile?.currency ?? 'MAD'
+  const [days, setDays] = useState<DayRow[]>([])
+  const [weeks, setWeeks] = useState<WeekRow[]>([])
+  const [months, setMonths] = useState<MonthRow[]>([])
+  const [years, setYears] = useState<YearRow[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!user) return
+
+    async function fetchHistory() {
+      const [daysRes, weeksRes, monthsRes, yearsRes] = await Promise.all([
+        supabase
+          .from('days')
+          .select('id, date, total_spent')
+          .eq('user_id', user!.id)
+          .eq('is_closed', true)
+          .order('date', { ascending: false }),
+        supabase
+          .from('weeks')
+          .select('id, week_number, year, total_spent')
+          .eq('user_id', user!.id)
+          .eq('is_closed', true)
+          .order('year', { ascending: false })
+          .order('week_number', { ascending: false }),
+        supabase
+          .from('months')
+          .select('id, month_number, year, total_spent')
+          .eq('user_id', user!.id)
+          .eq('is_closed', true)
+          .order('year', { ascending: false })
+          .order('month_number', { ascending: false }),
+        supabase
+          .from('years')
+          .select('id, year, total_spent')
+          .eq('user_id', user!.id)
+          .eq('is_closed', true)
+          .order('year', { ascending: false }),
+      ])
+
+      if (daysRes.data) setDays(daysRes.data)
+      if (weeksRes.data) setWeeks(weeksRes.data)
+      if (monthsRes.data) setMonths(monthsRes.data)
+      if (yearsRes.data) setYears(yearsRes.data)
+      setLoading(false)
+    }
+
+    fetchHistory()
+  }, [user])
+
+  if (loading) return <div className="min-h-screen" />
+
   return (
-    <div>
-      <h2>History</h2>
-      <HistorySection
-        title="Days"
-        items={fakeDays.map(d => ({
-          id: d.id,
-          label: d.date,
-          subtitle: 'Closed day',
-          total: d.totalSpent,
-        }))}
-        defaultCount={7}
-        maxCount={30}
-      />
-      <HistorySection
-        title="Weeks"
-        items={fakeWeeks.map(w => ({
-          id: w.id,
-          label: `Week ${w.weekNumber}`,
-          subtitle: `${w.year}`,
-          total: w.totalSpent,
-        }))}
-        defaultCount={7}
-        maxCount={30}
-      />
-      <HistorySection
-        title="Months"
-        items={fakeMonths.map(m => ({
-          id: m.id,
-          label: `Month ${m.monthNumber}`,
-          subtitle: `${m.year}`,
-          total: m.totalSpent,
-        }))}
-        defaultCount={7}
-        maxCount={12}
-      />
-      <HistorySection
-        title="Years"
-        items={fakeYears.map(y => ({
-          id: y.id,
-          label: `${y.year}`,
-          subtitle: 'Full year',
-          total: y.totalSpent,
-        }))}
-        defaultCount={fakeYears.length}
-        maxCount={fakeYears.length}
-      />
+    <div className="min-h-screen px-4 py-6 md:px-8 lg:px-10">
+      <div className="w-full max-w-3xl mx-auto lg:max-w-6xl rounded-2xl p-6 bg-[#1e1e1e] border border-[#2e2e2e]">
+        <HistorySection
+          title="Days"
+          currency={CURRENCY}
+          items={days.map(d => ({
+            id: d.id,
+            label: new Date(d.date + 'T00:00:00').toLocaleDateString('en-US', {
+              weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+            }),
+            subtitle: 'Closed day',
+            total: d.total_spent,
+          }))}
+          defaultCount={7}
+          maxCount={30}
+        />
+        <HistorySection
+          title="Weeks"
+          currency={CURRENCY}
+          items={weeks.map(w => ({
+            id: w.id,
+            label: `Week ${w.week_number}`,
+            subtitle: `${w.year}`,
+            total: w.total_spent,
+          }))}
+          defaultCount={7}
+          maxCount={30}
+        />
+        <HistorySection
+          title="Months"
+          currency={CURRENCY}
+          items={months.map(m => ({
+            id: m.id,
+            label: MONTH_NAMES[m.month_number - 1],
+            subtitle: `${m.year}`,
+            total: m.total_spent,
+          }))}
+          defaultCount={7}
+          maxCount={12}
+        />
+        <HistorySection
+          title="Years"
+          currency={CURRENCY}
+          items={years.map(y => ({
+            id: y.id,
+            label: `${y.year}`,
+            subtitle: 'Full year',
+            total: y.total_spent,
+          }))}
+          defaultCount={years.length}
+          maxCount={years.length}
+        />
+      </div>
     </div>
   )
 }
