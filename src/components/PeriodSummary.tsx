@@ -13,7 +13,7 @@ function PeriodSummary({ total, currency }: Props) {
         Current Spending
       </p>
       <p className="text-5xl font-normal tracking-[-0.01em] text-white font-['Source_Sans_3'] tabular-nums">
-        <span className="font-['IBM_Plex_Mono']">{total.toFixed(2)}</span>{' '}
+        <span className="font-['Platypi'] font-light">{total.toFixed(2)}</span>{' '}
         <span className="text-2xl text-white">{currency}</span>
       </p>
     </div>

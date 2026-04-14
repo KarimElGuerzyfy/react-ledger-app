@@ -12,7 +12,7 @@ function HistoryCard({ label, subtitle, total, currency = 'MAD' }: Props) {
         <p className="text-sm font-medium text-white">{label}</p>
         <p className="text-xs text-[#666666] uppercase tracking-widest mt-0.5">{subtitle}</p>
       </div>
-      <p className="font-['DM_Mono'] text-sm font-medium text-white">
+      <p className="font-['Platypi'] font-light text-sm text-white">
         {total.toFixed(2)} <span className="text-[#666666]">{currency}</span>
       </p>
     </div>

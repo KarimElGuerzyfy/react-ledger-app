@@ -5,7 +5,7 @@ type Props = {
 
 function CurrencySelector({ currency, onCurrencyChange }: Props) {
   return (
-    <div>
+    <div className="text-white">
       <label htmlFor="currency">Currency</label>
       <select
         id="currency"

@@ -75,7 +75,7 @@ function Navbar() {
               {menuOpen && (
                 <div className="absolute right-0 top-12 w-40 rounded-xl border border-[#2e2e2e] bg-[#1e1e1e] overflow-hidden z-50">
                   <Link
-                    to="/profile"
+                    to="/profile#settings"
                     onClick={() => setMenuOpen(false)}
                     className="block px-4 py-3 text-sm text-white hover:bg-[#2a2a2a] transition-colors"
                   >

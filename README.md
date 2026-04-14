@@ -25,17 +25,17 @@ _Coming soon — design in progress_
 - Multi-user — every user's data is fully isolated via Row Level Security
 - Add and delete expenses with description, amount, and category
 - Daily spending limit with warning (approaching and exceeded states)
+- Monthly spending limit with warning — set alongside the daily limit in Profile settings
 - Period filter on Dashboard (Day / Week / Month / Year) — switches the total display instantly
 - History page with expandable sections for all closed days, weeks, months, and years
 - Currency setting (MAD, EUR, USD, GBP, AED) — applies across the entire app
 - Automatic period closing at exactly 00:00 via Supabase cron Edge Functions
-- Automatic logout after 2 hours of inactivity
+- Configurable auto-logout after inactivity (5, 15, or 30 minutes — or never)
 - Onboarding screen on first login
 - Embedded tutorial video on the login page
 - Fully responsive
 
 **Planned updates:**
-- Monthly spending limit — post-launch based on user feedback
 - Stats page — charts showing spending by category, week over week comparison, biggest spending days
 - CSV export — download your full expense history
 
@@ -83,13 +83,21 @@ Implemented using React Router's nested routes and the `<Outlet />` pattern. The
 
 ### Auth Context and Profile in Global State
 
-Authentication state and user profile settings (currency, daily limit) are stored in a React Context that wraps the entire app. This means any component can access the current user and their settings without prop drilling. The context listens to Supabase's `onAuthStateChange` — any login or logout anywhere in the app instantly updates the global state.
+Authentication state and user profile settings (currency, daily limit, monthly limit, inactivity timeout) are stored in a React Context that wraps the entire app. This means any component can access the current user and their settings without prop drilling. The context listens to Supabase's `onAuthStateChange` — any login or logout anywhere in the app instantly updates the global state.
 
-When the user updates their currency or daily limit in the Profile page, `refreshProfile()` is called on the context, which re-fetches the profile from Supabase and updates the global state. This means the Dashboard immediately reflects the new currency and limit without requiring a page refresh.
+When the user updates their settings in the Profile page, `refreshProfile()` is called on the context, which re-fetches the profile from Supabase and updates the global state. This means the Dashboard immediately reflects the new currency and limits without requiring a page refresh.
 
 ### Inactivity Logout
 
-Supabase's inactivity timeout is a Pro plan feature. Rather than upgrading, inactivity logout was implemented in code using a custom `useInactivityLogout` hook. The hook listens for user activity events (mouse movement, clicks, keystrokes, scrolling, touch) and resets a timer on each event. If 2 hours pass with no activity, the user is automatically signed out and redirected to the login page. The hook is called once in `AppLayout` so it applies to all protected pages without repeating the logic.
+Supabase's inactivity timeout is a Pro plan feature. Rather than upgrading, inactivity logout was implemented in code using a custom `useInactivityLogout` hook. The hook listens for user activity events (mouse movement, clicks, keystrokes, scrolling, touch) and resets a timer on each event. If the configured timeout passes with no activity, the user is automatically signed out and redirected to the login page. The hook is called once in `AppLayout` so it applies to all protected pages without repeating the logic.
+
+The timeout duration is configurable per user — stored in the `profiles` table as `inactivity_timeout` (5, 15, or 30 minutes, or never) and passed into the hook at runtime from the auth context. The hook is throttled to fire at most once every 3 seconds using `clearTimeout/setTimeout`, and all event listeners are registered as passive to avoid blocking scroll and touch performance.
+
+### Profile Page and Settings Architecture
+
+The Profile page serves as both the user profile and the app settings. It is a single `/profile` route divided into three sections: Profile (display name, email, member since, change password), Settings (currency, spending limits, auto-logout timer), and Danger Zone (delete account).
+
+Two navbar entry points lead to the same page. Clicking the avatar navigates to `/profile` and scrolls to the top. Clicking Settings in the dropdown navigates to `/profile#settings` and triggers a `useEffect` that calls `scrollIntoView` on the settings section ref. No separate `/settings` route is needed — the hash is the only differentiator.
 
 ### Component vs Page Separation
 
@@ -99,13 +107,13 @@ Pages are route-level components — they map to a URL and are rendered by React
 
 The Dashboard shows the current active period only. A row of filter buttons (Day / Week / Month / Year) switches the total display — the same pill pattern used in Ledger v1 for category filtering. The expense form is always visible — no modal, no extra click. The goal is minimum friction for a daily-use app. History is a separate page that shows all closed periods. The Dashboard is "right now." History is "everything that already happened."
 
-### Spending Limit
+### Spending Limits
 
-At launch, users can set a daily spending limit. The reasoning: this is a daily engagement app. The daily limit is actionable in the moment. The monthly picture is retrospective — a monthly spending limit is planned as a post-launch update once users have had time to engage with the daily flow first.
+Users can set a daily and monthly spending limit from the Profile settings. The daily limit is the primary guardrail — it is actionable in the moment and shows a live progress bar on the Dashboard. The monthly limit provides a broader view of whether spending is on track across the full month. Both limits trigger warning states as the user approaches and exceeds them.
 
 ### Row Level Security
 
-All six database tables have RLS enabled with explicit policies. Users can only read, insert, update, or delete their own rows — enforced at the database level, not just application logic. Even if someone bypassed the frontend entirely and called the Supabase API directly, they would only ever be able to access their own data.
+All database tables have RLS enabled with explicit policies. Users can only read, insert, update, or delete their own rows — enforced at the database level, not just application logic. Even if someone bypassed the frontend entirely and called the Supabase API directly, they would only ever be able to access their own data.
 
 ---
 
@@ -164,6 +172,8 @@ type User = {
 }
 ```
 
+The `profiles` table extends the Supabase auth user with app-specific fields: `display_name`, `currency`, `daily_limit`, `monthly_limit`, and `inactivity_timeout`. These are fetched once on login and stored in the auth context, making them available to any component in the app without additional database calls.
+
 ---
 
 ## Project Structure
@@ -192,7 +202,7 @@ src/
 | `/register` | AuthLayout | Register page |
 | `/dashboard` | AppLayout | Main app — add expenses, view current period totals |
 | `/history` | AppLayout | Browse all closed days, weeks, months, and years |
-| `/profile` | AppLayout | Change password, set currency, delete account |
+| `/profile` | AppLayout | Change password, set currency, spending limits, auto-logout timer, delete account. Doubles as the settings page via `#settings` anchor scroll |
 
 ---
 

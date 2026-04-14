@@ -20,11 +20,11 @@ function SpendingWarning({ total, limit, currency }: Props) {
             Daily Limit
           </p>
           <p className="text-2xl font-medium text-white tracking-[-0.01em] font-['Source_Sans_3'] tabular-nums">
-            <span className="font-['IBM_Plex_Mono']">{limit.toFixed(2)}</span> {currency}
+            <span className="font-['Platypi'] font-light">{limit.toFixed(2)}</span> {currency}
           </p>
         </div>
         <p className={`text-xs ${isOver ? 'text-[#e05555]' : 'text-white'}`}>
-          <span className="font-['IBM_Plex_Mono']">{Math.round(percentage)}%</span> Used
+          <span className="font-['Platypi'] font-light">{Math.round(percentage)}%</span> Used
         </p>
       </div>
 
@@ -38,8 +38,8 @@ function SpendingWarning({ total, limit, currency }: Props) {
 
       <p className="text-sm text-center text-white font-['Source_Sans_3'] tabular-nums">
         {isOver
-          ? <><span className="font-['IBM_Plex_Mono']">{(total - limit).toFixed(2)}</span> {currency} over limit</>
-          : <><span className="font-['IBM_Plex_Mono']">{remaining.toFixed(2)}</span> {currency} remaining for today</>}
+          ? <><span className="font-['Platypi'] font-light">{(total - limit).toFixed(2)}</span> {currency} over limit</>
+          : <><span className="font-['Platypi'] font-light">{remaining.toFixed(2)}</span> {currency} remaining for today</>}
       </p>
     </div>
   )

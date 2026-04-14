@@ -44,7 +44,7 @@ function ChangePasswordForm() {
   }
 
   return (
-    <div>
+    <div className='text-white'>
       <h3>Change Password</h3>
 
       {error && <p>{error}</p>}
