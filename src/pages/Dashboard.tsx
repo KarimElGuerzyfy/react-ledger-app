@@ -41,8 +41,8 @@ function Dashboard() {
     async function fetchTodayExpenses() {
       // Date range is derived from the user's local clock.
       // Supabase stores timestamps in UTC, so this filter is timezone-aware
-      // as long as the user's device clock is correct. A server-side
-      // timezone solution can be added later if needed.
+      // as long as the user's device clock is correct. 
+      // A server-side timezone solution can be added later if needed.
       const today = new Date().toISOString().split('T')[0]
       const { data, error } = await supabase
         .from('expenses')

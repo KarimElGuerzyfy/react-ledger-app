@@ -8,7 +8,9 @@ function AppLayout() {
   return (
     <div>
       <Navbar />
-      <Outlet />
+      <div className="pb-15 md:pb-0">
+        <Outlet />
+      </div>
     </div>
   )
 }

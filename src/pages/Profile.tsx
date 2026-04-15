@@ -52,12 +52,19 @@ function Profile() {
 
   useEffect(() => {
     if (location.hash === '#settings') {
-      setTimeout(() => {
-        settingsRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        })
-      }, 100)
+      const scrollToSettings = () => {
+        if (settingsRef.current) {
+          settingsRef.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          })
+        } else {
+          // Element not in DOM yet, retry
+          requestAnimationFrame(scrollToSettings)
+        }
+      }
+      // Use requestAnimationFrame for better timing
+      requestAnimationFrame(scrollToSettings)
     }
   }, [location])
 
