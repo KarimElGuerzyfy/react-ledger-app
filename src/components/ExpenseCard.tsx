@@ -6,7 +6,7 @@ import {
   Stethoscope, 
   Receipt, 
   Box,
-  X,
+  XCircle,
 } from 'lucide-react';
 import type { Expense, Category } from '../types';
  
@@ -55,10 +55,10 @@ function ExpenseCard({ expense, onDelete, currency }: Props) {
       {/* Delete */}
       <button
         onClick={() => onDelete(expense.id)}
-        className="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200 text-white hover:text-red-400 hover:bg-red-400/10"
+        className="shrink-0 flex items-center justify-center transition-all duration-200 text-white hover:text-red-400"
         aria-label="Delete expense"
       >
-        <X size={16} strokeWidth={1.5} />
+        <XCircle size={18} strokeWidth={1.5} />
       </button>
     </div>
   )

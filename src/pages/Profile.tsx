@@ -21,6 +21,7 @@ function Profile() {
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -95,23 +96,25 @@ function Profile() {
     setSaving(false)
   }
 
-  async function handleDeleteAccount() {
-    const confirmed = window.confirm(
-      'Are you sure you want to delete your account? This cannot be undone.'
-    )
+async function handleDeleteAccount() {
+  const confirmed = window.confirm(
+    'Are you sure you want to delete your account? This cannot be undone.'
+  )
+  if (!confirmed) return
 
-    if (!confirmed) return
+  setDeleting(true)
 
-    const { error } = await supabase.auth.admin.deleteUser(user!.id)
+  const { error } = await supabase.functions.invoke('delete-account')
 
-    if (error) {
-      setError('Could not delete account')
-      return
-    }
-
-    await supabase.auth.signOut()
-    navigate('/')
+  if (error) {
+    setError('Could not delete account. Please try again.')
+    setDeleting(false)
+    return
   }
+
+  await supabase.auth.signOut()
+  navigate('/')
+}
 
   if (loading) return <div className="min-h-screen" />
 
@@ -245,9 +248,10 @@ function Profile() {
 
           <button
             onClick={handleDeleteAccount}
+            disabled={deleting}
             className="bg-red-500 hover:bg-red-600 transition-colors text-white px-4 py-2 rounded-lg"
           >
-            Delete Account
+            {deleting ? 'Deleting...' : 'Delete Account'}
           </button>
 
         </div>
