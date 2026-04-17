@@ -1,11 +1,22 @@
-import "@supabase/functions-js/edge-runtime.d.ts"
 import { createClient } from "jsr:@supabase/supabase-js@2"
  
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+}
+ 
 Deno.serve(async (req) => {
-  // Get the JWT from the request header to identify the calling user
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders })
+  }
+ 
   const authHeader = req.headers.get("Authorization")
   if (!authHeader) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 })
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: corsHeaders,
+    })
   }
  
   // Service role client — needed to delete auth users
@@ -14,7 +25,7 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   )
  
-  // User client — to verify the JWT and get the calling user's id
+  // User client — verifies the JWT and gets the calling user's id
   const userClient = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_ANON_KEY")!,
@@ -24,7 +35,10 @@ Deno.serve(async (req) => {
   const { data: { user }, error: userError } = await userClient.auth.getUser()
  
   if (userError || !user) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 })
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: corsHeaders,
+    })
   }
  
   const userId = user.id
@@ -41,10 +55,14 @@ Deno.serve(async (req) => {
   const { error: deleteError } = await supabase.auth.admin.deleteUser(userId)
  
   if (deleteError) {
-    return new Response(JSON.stringify({ error: deleteError.message }), { status: 500 })
+    return new Response(JSON.stringify({ error: deleteError.message }), {
+      status: 500,
+      headers: corsHeaders,
+    })
   }
  
   return new Response(JSON.stringify({ success: true }), {
-    headers: { "Content-Type": "application/json" },
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
   })
 })
+ 
