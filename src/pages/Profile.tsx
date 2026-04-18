@@ -73,19 +73,16 @@ function Profile() {
     setError('')
     setSuccess('')
  
-    // Validate daily limit
     if (!dailyLimit || parseFloat(dailyLimit) <= 0) {
       setError('Daily limit must be a positive number.')
       return
     }
  
-    // Validate monthly limit only if provided
     if (monthlyLimit && parseFloat(monthlyLimit) <= 0) {
       setError('Monthly limit must be a positive number.')
       return
     }
  
-    // Monthly limit should be greater than daily limit if both are set
     if (monthlyLimit && parseFloat(monthlyLimit) < parseFloat(dailyLimit)) {
       setError('Monthly limit should be greater than your daily limit.')
       return
@@ -166,22 +163,55 @@ function Profile() {
       <div className="w-full max-w-3xl mx-auto lg:max-w-6xl space-y-6">
  
         {/* PROFILE SECTION */}
-        <div className="bg-[#1e1e1e] border border-[#2e2e2e] rounded-xl p-6 space-y-6">
+        <div className="bg-[#1e1e1e] border border-[#2e2e2e] rounded-xl p-6">
  
-          <h2 className="text-xl font-semibold text-[#E8CD9B]">Profile</h2>
+          <h2 className="text-xl font-semibold text-white mb-4">Profile</h2>
  
-          {/* Account Info */}
-          <div className="bg-[#252525] border border-[#2e2e2e] rounded-lg p-4 space-y-2">
-            <p className="text-sm text-gray-400">Email</p>
-            <p className="text-white">{user?.email}</p>
+          <div className="h-px bg-[#2e2e2e] mb-5" />
  
-            <p className="text-sm text-gray-400 mt-3">Member since</p>
-            <p className="text-white font-['Platypi'] font-light">
-              {new Date(user?.created_at ?? '').toLocaleDateString()}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+ 
+            {/* Avatar + name + email */}
+            <div className="flex items-center gap-4">
+              <div
+                className="w-14 h-14 rounded-full flex items-center justify-center text-base font-bold shrink-0"
+                style={{ background: 'linear-gradient(135deg, #c4956a 0%, #E8CD9B 100%)', color: '#161616' }}
+              >
+                {(displayName || user?.email || 'U')
+                  .split(' ')
+                  .map((w: string) => w[0])
+                  .join('')
+                  .slice(0, 2)
+                  .toUpperCase()}
+              </div>
+              <div>
+                <p className="text-base font-semibold text-white">
+                  {displayName || 'No display name'}
+                </p>
+                <p className="text-sm text-gray-400">{user?.email}</p>
+              </div>
+            </div>
+ 
+            {/* Member since */}
+            <p className="text-sm font-semibold text-white sm:shrink-0">
+              Member since{'  '}
+              <span className="font-['Platypi'] font-light">
+                {new Date(user?.created_at ?? '').toLocaleDateString('en-GB').replace(/\//g, '.')}
+              </span>
             </p>
+ 
           </div>
  
-          {/* Display Name */}
+        </div>
+ 
+        {/* SETTINGS SECTION */}
+        <div
+          ref={settingsRef}
+          className="bg-[#1e1e1e] border border-[#2e2e2e] rounded-xl p-6 space-y-6"
+        >
+          <h2 className="text-xl font-semibold text-[#E8CD9B]">Settings</h2>
+ 
+          {/* Display Name — full width */}
           <div className="space-y-2">
             <label className="text-sm text-gray-400">Display Name</label>
             <input
@@ -193,66 +223,63 @@ function Profile() {
             />
           </div>
  
-          <ChangePasswordForm />
+          {/* 2-column grid:
+              Left:  Currency → Auto Logout
+              Right: Daily Limit → Monthly Limit */}
+          <div className="grid grid-cols-2 gap-x-4 gap-y-6">
  
-        </div>
- 
-        {/* SETTINGS SECTION */}
-        <div
-          ref={settingsRef}
-          className="bg-[#1e1e1e] border border-[#2e2e2e] rounded-xl p-6 space-y-6"
-        >
-          <h2 className="text-xl font-semibold text-[#E8CD9B]">Settings</h2>
- 
-          <CurrencySelector
-            currency={currency}
-            onCurrencyChange={setCurrency}
-          />
- 
-          {/* Daily Limit */}
-          <div className="space-y-2">
-            <label className="text-sm text-gray-400">Daily Spending Limit</label>
-            <input
-              type="number"
-              value={dailyLimit}
-              min="0"
-              onChange={(e) => {
-                setDailyLimit(e.target.value)
-                if (error) setError('')
-              }}
-              className="w-full bg-[#252525] border border-[#2e2e2e] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#E8CD9B] font-['Platypi'] font-light transition-colors duration-200"
+            {/* Left col — Currency */}
+            <CurrencySelector
+              currency={currency}
+              onCurrencyChange={setCurrency}
             />
-          </div>
  
-          {/* Monthly Limit */}
-          <div className="space-y-2">
-            <label className="text-sm text-gray-400">Monthly Spending Limit</label>
-            <input
-              type="number"
-              value={monthlyLimit}
-              min="0"
-              placeholder="No limit"
-              onChange={(e) => {
-                setMonthlyLimit(e.target.value)
-                if (error) setError('')
-              }}
-              className="w-full bg-[#252525] border border-[#2e2e2e] rounded-lg px-4 py-2 text-white placeholder:text-[#444] focus:outline-none focus:border-[#E8CD9B] font-['Platypi'] font-light transition-colors duration-200"
-            />
-          </div>
+            {/* Right col — Daily Limit */}
+            <div className="space-y-2">
+              <label className="text-sm text-gray-400">Daily Limit</label>
+              <input
+                type="number"
+                value={dailyLimit}
+                min="0"
+                onChange={(e) => {
+                  setDailyLimit(e.target.value)
+                  if (error) setError('')
+                }}
+                className="w-full bg-[#252525] border border-[#2e2e2e] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#E8CD9B] font-['Platypi'] font-light transition-colors duration-200"
+              />
+            </div>
  
-          {/* Auto logout */}
-          <div className="space-y-2">
-            <label className="text-sm text-gray-400">Auto logout timer</label>
-            <select
-              value={autoLogout}
-              onChange={(e) => setAutoLogout(e.target.value)}
-              className="w-full bg-[#252525] border border-[#2e2e2e] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#E8CD9B] transition-colors duration-200"
-            >
-              <option value="5">5 minutes</option>
-              <option value="15">15 minutes</option>
-              <option value="30">30 minutes</option>
-              <option value="never">Never</option>
-            </select>
+            {/* Left col — Auto Logout */}
+            <div className="space-y-2">
+              <label className="text-sm text-gray-400">Auto Logout</label>
+              <select
+                value={autoLogout}
+                onChange={(e) => setAutoLogout(e.target.value)}
+                className="w-full bg-[#252525] border border-[#2e2e2e] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#E8CD9B] transition-colors duration-200"
+              >
+                <option value="5">5 minutes</option>
+                <option value="15">15 minutes</option>
+                <option value="30">30 minutes</option>
+                <option value="never">Never</option>
+              </select>
+            </div>
+ 
+            {/* Right col — Monthly Limit */}
+            <div className="space-y-2">
+              <label className="text-sm text-gray-400">Monthly Limit</label>
+              <input
+                type="number"
+                value={monthlyLimit}
+                min="0"
+                placeholder="No limit"
+                onChange={(e) => {
+                  setMonthlyLimit(e.target.value)
+                  if (error) setError('')
+                }}
+                className="w-full bg-[#252525] border border-[#2e2e2e] rounded-lg px-4 py-2 text-white placeholder:text-[#444] focus:outline-none focus:border-[#E8CD9B] font-['Platypi'] font-light transition-colors duration-200"
+              />
+            </div>
+ 
           </div>
  
           {error && <p className="text-red-400 text-xs">{error}</p>}
@@ -261,29 +288,34 @@ function Profile() {
           <button
             onClick={handleSaveSettings}
             disabled={saving}
-            className="bg-[#c4956a] hover:opacity-90 active:opacity-75 transition-opacity text-[#1a1108] font-semibold px-5 py-2 rounded-lg disabled:opacity-50"
+            className="w-full py-2 rounded-lg text-md font-semibold bg-[#c4956a] hover:opacity-90 active:opacity-75 transition-opacity text-[#1a1108] disabled:opacity-50"
           >
             {saving ? 'Saving...' : 'Save Settings'}
           </button>
  
         </div>
  
+        {/* CHANGE PASSWORD */}
+        <div className="bg-[#1e1e1e] border border-[#2e2e2e] rounded-xl p-6 space-y-4">
+          <h2 className="text-lg font-semibold text-white">Change Password</h2>
+          <ChangePasswordForm />
+        </div>
+ 
         {/* DANGER ZONE */}
-        <div className="bg-[#1e1e1e] border border-red-500/30 rounded-xl p-6 space-y-4">
+        <div className="bg-[#2a2a2a] border border-red-500/30 rounded-xl p-6 space-y-4">
  
           <h2 className="text-lg font-semibold text-red-400">Danger Zone</h2>
  
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-white">
             This action is permanent and cannot be undone. All your expenses,
             history, and settings will be deleted immediately.
           </p>
  
-          <div className="space-y-2">
-            <label className="text-sm text-gray-400">
-              Type{' '}
-              <span className="text-red-400 font-mono">DELETE</span>
-              {' '}to confirm
-            </label>
+          {deleteError && (
+            <p className="text-red-400 text-xs">{deleteError}</p>
+          )}
+ 
+          <div className="grid grid-cols-2 gap-3">
             <input
               type="text"
               value={deleteConfirm}
@@ -291,28 +323,24 @@ function Profile() {
                 setDeleteConfirm(e.target.value)
                 setDeleteError('')
               }}
-              placeholder="DELETE"
-              className="w-full bg-[#1a1010] border border-red-500/30 rounded-lg px-4 py-2 text-white placeholder:text-red-500/20 focus:outline-none focus:border-red-500/60"
+              placeholder="Type DELETE to confirm"
+              className="w-full bg-[#363433] border border-red-500/30 rounded-lg px-4 py-2.5 text-white text-sm placeholder:text-[#E59898] focus:outline-none focus:border-red-500/60"
             />
+ 
+            <button
+              onClick={handleDeleteAccount}
+              disabled={deleting || deleteConfirm !== 'DELETE'}
+              className="w-full py-2.5 rounded-lg text-sm font-semibold transition-all"
+              style={{
+                background: deleteConfirm === 'DELETE' ? '#3d1a1a' : '#363433',
+                color: deleteConfirm === 'DELETE' ? '#f87171' : '#E59898',
+                border: '1px solid rgba(239,68,68,0.3)',
+                cursor: deleteConfirm === 'DELETE' ? 'pointer' : 'not-allowed',
+              }}
+            >
+              {deleting ? 'Deleting...' : 'Delete my account'}
+            </button>
           </div>
- 
-          {deleteError && (
-            <p className="text-red-400 text-xs">{deleteError}</p>
-          )}
- 
-          <button
-            onClick={handleDeleteAccount}
-            disabled={deleting || deleteConfirm !== 'DELETE'}
-            className="w-full py-2 rounded-lg text-sm font-semibold transition-all"
-            style={{
-              background: deleteConfirm === 'DELETE' ? '#3d1a1a' : '#1a1010',
-              color: deleteConfirm === 'DELETE' ? '#f87171' : '#3d1a1a',
-              border: '1px solid rgba(239,68,68,0.3)',
-              cursor: deleteConfirm === 'DELETE' ? 'pointer' : 'not-allowed',
-            }}
-          >
-            {deleting ? 'Deleting...' : 'Delete my account'}
-          </button>
  
         </div>
  
