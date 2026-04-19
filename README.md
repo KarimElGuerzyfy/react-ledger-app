@@ -71,6 +71,8 @@ Days close at 00:00. Weeks close at Sunday 00:00 and are labeled Week 1–52. Mo
 
 All of this runs via Supabase cron Edge Functions — server-side scheduled jobs. Client-side closing (checking on page load whether a period has expired) is unreliable and inconsistent. Server-side closing ensures every user's data is treated the same way.
 
+Timezone caveat: The cron job runs at 00:00 UTC. Since Supabase Edge Functions have no concept of per-user timezones, every user's day closes at the same UTC midnight regardless of where they are. For a user in Morocco (UTC+1 in summer), the day closes at 01:00 local time. For a user in Paris (UTC+2), it closes at 02:00. For a user in New York (UTC-4), it closes at 20:00 the previous evening. The data is always accurate — only the closing time drifts from local midnight. A proper fix would store each user's timezone in their profile and adjust the closing logic per user, but this is a post-launch improvement and not a blocker for a personal finance app at this stage.
+
 ### Layout Architecture
 
 The app uses two layouts:
@@ -141,6 +143,10 @@ The `ExpenseForm` component accepts an `ExpenseInput` type rather than a full `E
 Each form validates input client-side before hitting Supabase. Login and Register validate email format and password length, and map raw Supabase error messages to readable ones — "Invalid login credentials" becomes "Incorrect email or password", "User already registered" becomes "An account with this email already exists." Password minimum is 8 characters consistently across Register, Login, and ChangePasswordForm.
 The Dashboard handles Supabase fetch failures with a fetchError state — if either the expenses or days query fails on load, the user sees a "Something went wrong, please refresh" message instead of a blank screen.
 All inputs clear their error state as soon as the user starts typing, so errors never linger after the user has already corrected them.
+
+###  History Pagination
+
+The History page uses real Supabase pagination rather than a client-side slice with a hard cap. Each section (Days, Weeks, Months) fetches an initial batch from the database and loads more on demand. The limit + 1 trick is used to determine if more records exist — each query requests one more item than needed, and if that extra item comes back, hasMore is set to true and the "Show more" button appears. No separate count query needed. Years are always fetched in full since there will never be more than a handful. This ensures no historical data is ever silently hidden from the user regardless of how long they use the app.
 
 ---
 

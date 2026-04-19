@@ -102,10 +102,15 @@ function LoginForm() {
       </p>
  
       {/* Tutorial video */}
-      <div className="w-full bg-stone-900 rounded-xl aspect-video flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-          <div className="w-0 h-0 border-t-8 border-b-8 border-l-12 border-transparent border-l-white ml-1" />
-        </div>
+      <div className="w-full rounded-xl overflow-hidden aspect-video">
+        <iframe
+          width="100%"
+          height="100%"
+          src="https://www.youtube.com/embed/s_01u_vrtss"
+          title="Ledger — Tutorial"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
       </div>
       <p className="text-xs text-stone-400 text-center mt-2">Tutorial video — how to use Ledger</p>
     </div>
