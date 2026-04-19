@@ -21,9 +21,12 @@ function HistorySection({ title, items, currency, hasMore, loadingMore, onLoadMo
  
   return (
     <div className="mb-8">
-      <h3 className="text-xs uppercase tracking-[0.15em] text-[#666666] mb-3 font-medium">
-        {title}
-      </h3>
+      {/* Section title — dark pill */}
+      <div className="w-full md:w-1/4 bg-[#2e2e2e] rounded-lg px-4 py-2 mb-3">
+        <h3 className="text-sm font-semibold text-white uppercase tracking-widest text-left">
+          {title}
+        </h3>
+      </div>
  
       <div className="flex flex-col gap-2">
         {items.map(item => (
