@@ -8,7 +8,7 @@ The core idea is simple: **the day is the atomic unit.** You engage with the app
 
 ## Live Demo
 
-_Coming soon_
+Live Demo: react-ledger-app.vercel.app
 
 ---
 
