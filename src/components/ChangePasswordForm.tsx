@@ -58,7 +58,7 @@ function ChangePasswordForm() {
             setNewPassword(e.target.value)
             if (error) setError('')
           }}
-          className="w-full bg-[#252525] border border-[#2e2e2e] rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#E8CD9B] transition-colors duration-200"
+          className="w-full bg-[#F4F4F4] border border-transparent shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] rounded-lg px-4 py-2.5 text-md text-black placeholder:text-[#444] focus:outline-none focus:border-[#E59898] transition-colors duration-200"
         />
         <input
           id="confirmNewPassword"
@@ -70,7 +70,7 @@ function ChangePasswordForm() {
             if (error) setError('')
           }}
           onKeyDown={(e) => e.key === 'Enter' && handleChangePassword()}
-          className="w-full bg-[#252525] border border-[#2e2e2e] rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#E8CD9B] transition-colors duration-200"
+          className="w-full bg-[#F4F4F4] border border-transparent shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] rounded-lg px-4 py-2.5 text-md text-black placeholder:text-[#444] focus:outline-none focus:border-[#E59898] transition-colors duration-200"
         />
       </div>
  
@@ -78,7 +78,7 @@ function ChangePasswordForm() {
         type="button"
         onClick={handleChangePassword}
         disabled={loading}
-        className="w-full py-2 rounded-lg text-md font-semibold bg-[#c4956a] hover:opacity-90 active:opacity-75 transition-opacity text-[#1a1108] disabled:opacity-50"
+        className="w-full py-2 rounded-lg text-md font-semibold bg-[#E59898] hover:opacity-90 active:opacity-75 transition-opacity text-[#1a1108] disabled:opacity-50"
       >
         {loading ? 'Updating...' : 'Update Password'}
       </button>

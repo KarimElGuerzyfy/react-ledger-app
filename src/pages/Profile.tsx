@@ -160,22 +160,22 @@ function Profile() {
  
   return (
     <div className="min-h-screen px-4 py-6 md:px-8 lg:px-10">
-      <div className="w-full max-w-3xl mx-auto lg:max-w-6xl space-y-6">
+      <div className="w-full max-w-3xl mx-auto lg:max-w-6xl space-y-4">
  
         {/* PROFILE SECTION */}
-        <div className="bg-[#1e1e1e] border border-[#2e2e2e] rounded-xl p-6">
+        <div className="bg-white border border-[#2e2e2e] rounded-2xl p-4">
  
-          <h2 className="text-xl font-semibold text-white mb-4">Profile</h2>
+          <h2 className="text-xl font-semibold text-black mb-1">PROFILE</h2>
  
-          <div className="h-px bg-[#2e2e2e] mb-5" />
+          <div className="h-px bg-black mb-3" />
  
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
  
             {/* Avatar + name + email */}
             <div className="flex items-center gap-4">
               <div
-                className="w-14 h-14 rounded-full flex items-center justify-center text-base font-bold shrink-0"
-                style={{ background: 'linear-gradient(135deg, #c4956a 0%, #E8CD9B 100%)', color: '#161616' }}
+                className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold shrink-0"
+                style={{ background: 'linear-gradient(135deg, #c4956a 0%, #E59898 100%)', color: '#161616' }}
               >
                 {(displayName || user?.email || 'U')
                   .split(' ')
@@ -185,16 +185,16 @@ function Profile() {
                   .toUpperCase()}
               </div>
               <div>
-                <p className="text-base font-semibold text-white">
+                <p className="text-base font-semibold text-black">
                   {displayName || 'No display name'}
                 </p>
-                <p className="text-sm text-gray-400">{user?.email}</p>
+                <p className="text-sm text-black">{user?.email}</p>
               </div>
             </div>
  
             {/* Member since */}
-            <p className="text-sm font-semibold text-white sm:shrink-0">
-              Member since{'  '}
+            <p className="text-sm font-semibold text-black sm:shrink-0">
+              Member since :{'  '}
               <span className="font-['Platypi'] font-light">
                 {new Date(user?.created_at ?? '').toLocaleDateString('en-GB').replace(/\//g, '.')}
               </span>
@@ -207,19 +207,20 @@ function Profile() {
         {/* SETTINGS SECTION */}
         <div
           ref={settingsRef}
-          className="bg-[#1e1e1e] border border-[#2e2e2e] rounded-xl p-6 space-y-6"
+          className="bg-white border border-[#2e2e2e] rounded-2xl p-4 space-y-4"
         >
-          <h2 className="text-xl font-semibold text-[#E8CD9B]">Settings</h2>
+          <h2 className="text-xl font-semibold text-black mb-1">Settings</h2>
+          <div className="h-px bg-black mb-2" />
  
           {/* Display Name — full width */}
           <div className="space-y-2">
-            <label className="text-sm text-gray-400">Display Name</label>
+            <label className="text-sm text-black font-semibold">Display Name</label>
             <input
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Your name"
-              className="w-full bg-[#252525] border border-[#2e2e2e] rounded-lg px-4 py-2 text-white placeholder:text-[#444] focus:outline-none focus:border-[#E8CD9B] transition-colors duration-200"
+              className="w-full bg-[#F4F4F4] border border-transparent shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] rounded-lg px-4 py-2 text-gray-600 placeholder:text-[#444] focus:outline-none focus:border-[#E59898] transition-colors duration-200"
             />
           </div>
  
@@ -236,7 +237,7 @@ function Profile() {
  
             {/* Right col — Daily Limit */}
             <div className="space-y-2">
-              <label className="text-sm text-gray-400">Daily Limit</label>
+              <label className="text-sm text-black font-semibold">Daily Limit</label>
               <input
                 type="number"
                 value={dailyLimit}
@@ -245,17 +246,17 @@ function Profile() {
                   setDailyLimit(e.target.value)
                   if (error) setError('')
                 }}
-                className="w-full bg-[#252525] border border-[#2e2e2e] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#E8CD9B] font-['Platypi'] font-light transition-colors duration-200"
+                className="w-full bg-[#F4F4F4] shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] border border-transparent rounded-lg px-4 py-2 text-gray-600 focus:outline-none focus:border-[#E59898] font-['Platypi'] font-light transition-colors duration-200"
               />
             </div>
  
             {/* Left col — Auto Logout */}
             <div className="space-y-2">
-              <label className="text-sm text-gray-400">Auto Logout</label>
+              <label className="text-sm text-black font-semibold">Auto Logout</label>
               <select
                 value={autoLogout}
                 onChange={(e) => setAutoLogout(e.target.value)}
-                className="w-full bg-[#252525] border border-[#2e2e2e] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#E8CD9B] transition-colors duration-200"
+                className="w-full bg-[#F4F4F4] border border-transparent shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] rounded-lg px-4 py-2 text-gray-600 focus:outline-none focus:border-[#E59898] transition-colors duration-200"
               >
                 <option value="5">5 minutes</option>
                 <option value="15">15 minutes</option>
@@ -266,7 +267,7 @@ function Profile() {
  
             {/* Right col — Monthly Limit */}
             <div className="space-y-2">
-              <label className="text-sm text-gray-400">Monthly Limit</label>
+              <label className="text-sm text-black font-semibold">Monthly Limit</label>
               <input
                 type="number"
                 value={monthlyLimit}
@@ -276,7 +277,7 @@ function Profile() {
                   setMonthlyLimit(e.target.value)
                   if (error) setError('')
                 }}
-                className="w-full bg-[#252525] border border-[#2e2e2e] rounded-lg px-4 py-2 text-white placeholder:text-[#444] focus:outline-none focus:border-[#E8CD9B] font-['Platypi'] font-light transition-colors duration-200"
+                className="w-full bg-[#F4F4F4] border border-transparent shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] rounded-lg px-4 py-2 text-gray-600 placeholder:text-[#444] focus:outline-none focus:border-[#E59898] font-['Platypi'] font-light transition-colors duration-200"
               />
             </div>
  
@@ -288,7 +289,7 @@ function Profile() {
           <button
             onClick={handleSaveSettings}
             disabled={saving}
-            className="w-full py-2 rounded-lg text-md font-semibold bg-[#c4956a] hover:opacity-90 active:opacity-75 transition-opacity text-[#1a1108] disabled:opacity-50"
+            className="w-full py-2 rounded-lg text-md font-semibold bg-[#E59898] hover:opacity-90 active:opacity-75 transition-opacity text-[#1a1108] disabled:opacity-50"
           >
             {saving ? 'Saving...' : 'Save Settings'}
           </button>
@@ -296,15 +297,15 @@ function Profile() {
         </div>
  
         {/* CHANGE PASSWORD */}
-        <div className="bg-[#1e1e1e] border border-[#2e2e2e] rounded-xl p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-white">Change Password</h2>
+        <div className="bg-white border border-[#2e2e2e] rounded-2xl p-4 space-y-4">
+          <h2 className="text-lg font-semibold text-black mb-1">Change Password</h2>
           <ChangePasswordForm />
         </div>
  
         {/* DANGER ZONE */}
-        <div className="bg-[#2a2a2a] border border-red-500/30 rounded-xl p-6 space-y-4">
+        <div className="bg-[#797373] border border-red-500/10 rounded-2xl p-4 space-y-3">
  
-          <h2 className="text-lg font-semibold text-red-400">Danger Zone</h2>
+          <h2 className="text-lg font-semibold text-[#6B0919] mb-1">Danger Zone</h2>
  
           <p className="text-sm text-white">
             This action is permanent and cannot be undone. All your expenses,
@@ -315,7 +316,7 @@ function Profile() {
             <p className="text-red-400 text-xs">{deleteError}</p>
           )}
  
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input
               type="text"
               value={deleteConfirm}
@@ -324,7 +325,7 @@ function Profile() {
                 setDeleteError('')
               }}
               placeholder="Type DELETE to confirm"
-              className="w-full bg-[#363433] border border-red-500/30 rounded-lg px-4 py-2.5 text-white text-sm placeholder:text-[#E59898] focus:outline-none focus:border-red-500/60"
+              className="w-full bg-[#363433] font-semibold border text-center border-red-500/30 rounded-lg px-4 py-2.5 text-white text-sm placeholder:text-[#E59898] focus:outline-none focus:border-red-500/60"
             />
  
             <button
